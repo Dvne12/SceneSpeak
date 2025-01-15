@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Previous head and style sections remain the same -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SceneSpeak</title>
+    <style>
+        /* All previous styles remain exactly the same */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .chat-header {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-header h1 {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .chat-header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        .chat-icon {
+            background: rgba(255, 255, 255, 0.2);
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: bounce 1.5s infinite;
+        }
+
+        .chat-icon svg {
+            width: 24px;
+            height: 24px;
+            color: white;
+        }
+
+        .chatbot-body {
+            height: 400px;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            max-width: 80%;
+            margin-bottom: 10px;
+            align-self: flex-start;
+            display: flex;
+            align-items: flex-end;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .message.user {
+            align-self: flex-end;
+        }
+
+        .message-bubble {
+            padding: 10px 15px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 0.9rem;
+            animation: fadeInScale 0.4s ease;
+        }
+
+        .message.user .message-bubble {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .message-logo {
+            width: 40px;
+            height: 40px;
+            margin-right: 8px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .message-logo img {
+            width: 28px;
+            height: 28px;
+        }
+
+        .message-image {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 10px;
+            margin-top: 5px;
+        }
+
+        .chatbot-footer {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 10px;
+        }
+
+        .chatbot-footer input {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .chatbot-footer input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .chatbot-footer input:focus {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .chatbot-footer button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .chatbot-footer button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .file-upload-icon {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-icon:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin: 10px 0;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes blink {
+            0%, 100% {
+                opacity: 0.2;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="chat-icon">
+                <img src="logo.png" alt="AI Chatbot Logo" style="width: 50px; height: 50px; border-radius: 12px;">
+            </div>
+            <div>
+                <h1>SceneSpeak</h1>
+                <p>Send a picture to generate a caption </p>
+            </div>
+        </div>
+        <div class="chatbot-body" id="chatBody">
+            <div class="message bot"></div>
+        </div>
+        <div class="chatbot-footer">
+            <input type="text" id="userInput" placeholder="Type your message here..." />
+            <button id="sendButton">➤</button>
+            <label for="fileInput" class="file-upload-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="24px" height="24px">
+                    <path d="M10 16h4v-6h4l-6-6-6 6h4v6zM18 16v4H6v-4H4v4c0 1.104.896 2 2 2h12c1.104 0 2-.896 2-2v-4h-2z" />
+                </svg>
+            </label>
+            <input type="file" id="fileInput" style="display: none;" accept="image/*" />
+        </div>
+    </div>
+
+    <script>
+    async function fetchBotResponse(imageFile) {
+    const config = {
+        apiUrl: 'https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-large',
+        headers: {
+            'Authorization': 'Bearer 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',
+        }
+    };
+
+    const reader = new FileReader();
+    reader.readAsDataURL(imageFile);
+    
+    return new Promise((resolve, reject) => {
+        reader.onload = async function() {
+            const base64Image = reader.result.split(',')[1]; // Get the base64 part
+            const requestBody = JSON.stringify({
+                inputs: base64Image
+            });
+
+            try {
+                const response = await fetch(config.apiUrl, {
+                    method: 'POST',
+                    headers: config.headers,
+                    body: requestBody // Send base64 encoded image as JSON
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    resolve(data[0].generated_text || "Sorry, I couldn't understand that.");
+                } else {
+                    const errorData = await response.json();
+                    console.error('Error with API call:', response.status, errorData);
+                    resolve("Sorry, there was an error with the bot.");
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                resolve("Sorry, there was an issue with the connection.");
+            }
+        };
+
+        reader.onerror = function(error) {
+            reject("Error reading file: " + error);
+        };
+    });
+}
+
+
+    let currentFile = null;
+
+    function addMessage(content, sender, file = null) {
+        const chatBody = document.getElementById("chatBody");
+        const message = document.createElement("div");
+        message.className = `message ${sender}`;
+
+        if (sender === 'bot') {
+            const logo = document.createElement("div");
+            logo.className = "message-logo";
+            const img = document.createElement("img");
+            img.src = "logo.png";
+            img.alt = "AI Chatbot Logo";
+            logo.appendChild(img);
+            message.appendChild(logo);
+        }
+
+        const bubble = document.createElement("div");
+        bubble.className = "message-bubble";
+
+        // Handle file upload case
+        if (file) {
+            const img = document.createElement("img");
+            img.src = URL.createObjectURL(file);
+            img.className = "message-image";
+            img.onload = () => URL.revokeObjectURL(img.src);
+            bubble.appendChild(img);
+        } else if (content) {
+            // Handle text message case
+            bubble.textContent = content;
+        }
+
+        message.appendChild(bubble);
+        chatBody.appendChild(message);
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    const addTypingIndicator = () => {
+        const chatBody = document.getElementById("chatBody");
+        if (document.getElementById("typing")) return;
+
+        const typingIndicator = document.createElement("div");
+        typingIndicator.className = "typing-indicator";
+        typingIndicator.id = "typing";
+
+        [1, 2, 3].forEach(() => {
+            const span = document.createElement("span");
+            typingIndicator.appendChild(span);
+        });
+
+        chatBody.appendChild(typingIndicator);
+        chatBody.scrollTop = chatBody.scrollHeight;
+    };
+
+    const removeTypingIndicator = () => {
+        const typingIndicator = document.getElementById("typing");
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    };
+
+   
+
+
+    document.getElementById("fileInput").addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            currentFile = file;
+            const userInput = document.getElementById("userInput");
+            userInput.value = file.name;
+        }
+    });
+
+    document.getElementById("sendButton").addEventListener("click", async () => {
+    const userInput = document.getElementById("userInput");
+    const message = userInput.value.trim();
+
+    if (message || currentFile) {
+        if (currentFile) {
+            // If there's a file, send the file to the API
+            addMessage("", 'user', currentFile);
+            const botResponse = await fetchBotResponse(currentFile); // Call with the image file
+            currentFile = null; // Reset the current file
+            addMessage(botResponse, 'bot');
+
+            // Clear the textbox after sending the image
+            userInput.value = '';
+        } else {
+            // If there's only text, send as normal text message
+            addMessage(message, 'user');
+            userInput.value = ''; // Clear the textbox after sending the message
+            addTypingIndicator();
+
+            // Get bot's response from the API
+            const botResponse = await fetchBotResponse(message);
+            removeTypingIndicator();
+            addMessage(botResponse, 'bot');
+        }
+    }
+});
+    document.getElementById("userInput").addEventListener("keypress", (event) => {
+        if (event.key === "Enter") {
+            document.getElementById("sendButton").click();
+        }
+    });
+    </script>
+</body>
+</html>
